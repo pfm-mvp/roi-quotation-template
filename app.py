@@ -88,6 +88,51 @@ div[data-testid="stButton"] {{
   min-height: 44px;
 }}
 
+/* Generate quote form submit button */
+div[data-testid="stFormSubmitButton"] button {{
+  background-color: var(--pfm-purple) !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  min-height: 44px !important;
+}}
+
+/* Generate quote form submit button */
+div[data-testid="stFormSubmitButton"] button {{
+  background-color: var(--pfm-purple) !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  min-height: 44px !important;
+}}
+
+div[data-testid="stFormSubmitButton"] button p,
+div[data-testid="stFormSubmitButton"] button span {{
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}}
+
+/* Quote form labels, helper text and captions */
+div[data-testid="stForm"] label,
+div[data-testid="stForm"] p,
+div[data-testid="stForm"] span,
+div[data-testid="stForm"] div[data-testid="stWidgetLabel"],
+div[data-testid="stForm"] div[data-testid="stWidgetLabel"] p {{
+  color: #0C111D !important;
+  -webkit-text-fill-color: #0C111D !important;
+  opacity: 1 !important;
+}}
+
+div[data-testid="stFormSubmitButton"] button p,
+div[data-testid="stFormSubmitButton"] button span {{
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}}
+
 /* Reset button alignment inside the quote form */
 div[data-testid="stForm"] div[data-testid="stButton"] {{
   margin-top: 0 !important;
@@ -662,8 +707,11 @@ with st.expander("Generate quote", expanded=False):
                     st.error("Please complete: " + ", ".join(missing_fields))
                 else:
                     payload = {
-                        "source": "rts_roi_calc_2026",
+                        "source": "roi-calc-quotation",
                         "submitted_at": datetime.now(timezone.utc).isoformat(),
+                        # Core quote parameters for n8n / Odoo
+                        "amount_of_sensors": int(n_stores),
+                        "stores_in_scope": int(n_stores),
                         "lead": {
                             "company_name": company_name.strip(),
                             "contact_name": contact_name.strip(),
