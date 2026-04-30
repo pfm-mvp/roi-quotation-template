@@ -628,7 +628,6 @@ with st.expander("Generate quote", expanded=False):
         "N8N_QUOTE_WEBHOOK_URL",
         "https://dummy-n8n-webhook-url.com/webhook/rts-roi-quote",
     )
-    webhook_token = st.secrets.get("N8N_QUOTE_WEBHOOK_TOKEN", "")
 
     if not configured_access_code:
         st.warning("QUOTE_ACCESS_CODE is not configured in Streamlit secrets. Add it before using this in production.")
@@ -767,8 +766,6 @@ with st.expander("Generate quote", expanded=False):
                     }
 
                     headers = {"Content-Type": "application/json"}
-                    if webhook_token:
-                        headers["X-PFM-Webhook-Token"] = webhook_token
 
                     try:
                         response = requests.post(
