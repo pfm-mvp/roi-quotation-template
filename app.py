@@ -809,14 +809,14 @@ with st.expander("Generate quote", expanded=False):
                         
                         try:
                             st.code(
-                                 json.dumps(payload, indent=2, default=str),
-                                 language="json"
-                             )
+                                json.dumps(payload, indent=2, default=str),
+                                language="json"
+                            )
                         except Exception as e:
-                             st.error(f"Debug rendering failed: {e}")
+                            st.error(f"Debug rendering failed: {e}")
                         
-                         st.markdown("**Webhook URL:**")
-                         st.code(webhook_url)
+                        st.markdown("**Webhook URL:**")
+                        st.code(webhook_url)
 
                     headers = {"Content-Type": "application/json"}
 
