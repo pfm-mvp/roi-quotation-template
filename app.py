@@ -1,4 +1,5 @@
 import re
+import json
 from datetime import datetime, timezone
 
 import requests
@@ -638,6 +639,8 @@ with k6:
 
 st.markdown("---")
 
+debug_mode = st.checkbox("🛠️ Show debug payload (internal)", value=False)
+
 with st.expander("Generate quote", expanded=False):
     st.caption("Internal use only. Complete the fields below to send the ROI scenario to the quote workflow.")
 
@@ -756,6 +759,20 @@ with st.expander("Generate quote", expanded=False):
                             "operating_unit_id": int(operating_unit_id),
                             "user_id": int(user_id),
                         },
+                        # Debug output (only visible when enabled)
+                        if debug_mode:
+                            st.markdown("### Debug – Payload sent to n8n")
+                        
+                            try:
+                                st.code(
+                                    json.dumps(payload, indent=2, default=str),
+                                    language="json"
+                                )
+                            except Exception as e:
+                                st.error(f"Debug rendering failed: {e}")
+                        
+                            st.markdown("**Webhook URL:**")
+                            st.code(webhook_url)
                         "scenario": {
                             "currency": currency,
                             "num_stores": int(n_stores),
