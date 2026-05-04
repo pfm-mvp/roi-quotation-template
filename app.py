@@ -308,6 +308,23 @@ DEFAULTS = {
     "preset_desc": PRESETS["Fashion Retail"]["desc"],
 }
 
+OPERATING_UNIT_MAP = {
+    "Shops": 7,
+    "Shopping Centres": 8,
+}
+
+SALESPERSON_MAP = {
+    "Christiaan van Rooijen": 181,
+    # straks uitbreiden:
+    # "Mark King": XXX,
+    # "Raymond Sestig": XXX,
+}
+
+OPPORTUNITY_MAP = {
+    "Premium": 198,
+    "Budget": 199,
+}
+
 for key, value in DEFAULTS.items():
     st.session_state.setdefault(key, value)
 
@@ -716,9 +733,13 @@ with st.expander("Generate quote", expanded=False):
                             "contact_name": contact_name.strip(),
                             "contact_email": contact_email.strip(),
                             "contact_phone": contact_phone.strip() or None,
-                            "operating_unit": operating_unit,
+                            "operating_unit_id": OPERATING_UNIT_MAP.get(operating_unit),
+                            "salesperson_id": SALESPERSON_MAP.get(salesperson_name),
+                            "opportunity_type_id": OPPORTUNITY_MAP.get(opportunity_type),
+                            # optioneel (aanrader voor logging/debugging)
+                            "operating_unit_label": operating_unit,
                             "salesperson_name": salesperson_name,
-                            "opportunity_type": opportunity_type,
+                            "opportunity_type_label": opportunity_type,
                         },
                         "scenario": {
                             "currency": currency,
