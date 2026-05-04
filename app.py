@@ -759,20 +759,6 @@ with st.expander("Generate quote", expanded=False):
                             "operating_unit_id": int(operating_unit_id),
                             "user_id": int(user_id),
                         },
-                        # Debug output (only visible when enabled)
-                        if debug_mode:
-                            st.markdown("### Debug – Payload sent to n8n")
-                        
-                            try:
-                                st.code(
-                                    json.dumps(payload, indent=2, default=str),
-                                    language="json"
-                                )
-                            except Exception as e:
-                                st.error(f"Debug rendering failed: {e}")
-                        
-                            st.markdown("**Webhook URL:**")
-                            st.code(webhook_url)
                         "scenario": {
                             "currency": currency,
                             "num_stores": int(n_stores),
@@ -817,6 +803,20 @@ with st.expander("Generate quote", expanded=False):
                             "payback_months": None if payback_months == float("inf") else payback_months,
                         },
                     }
+                    # Debug output (only visible when enabled)
+                    if debug_mode:
+                        st.markdown("### Debug – Payload sent to n8n")
+                        
+                        try:
+                            st.code(
+                                 json.dumps(payload, indent=2, default=str),
+                                 language="json"
+                             )
+                        except Exception as e:
+                             st.error(f"Debug rendering failed: {e}")
+                        
+                         st.markdown("**Webhook URL:**")
+                         st.code(webhook_url)
 
                     headers = {"Content-Type": "application/json"}
 
