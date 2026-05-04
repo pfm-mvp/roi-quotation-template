@@ -311,6 +311,7 @@ DEFAULTS = {
 OPERATING_UNIT_MAP = {
     "Shops": 7,
     "Shopping Centres": 8,
+    "Streets": 9,
 }
 
 SALESPERSON_MAP = {
@@ -722,6 +723,21 @@ with st.expander("Generate quote", expanded=False):
                 if missing_fields:
                     st.error("Please complete: " + ", ".join(missing_fields))
                 else:
+                    template_id = OPPORTUNITY_MAP.get(opportunity_type)
+                    operating_unit_id = OPERATING_UNIT_MAP.get(operating_unit)
+                    user_id = SALESPERSON_MAP.get(salesperson_name)
+                    
+                    if template_id is None:
+                        st.error(f"Missing Odoo template mapping for opportunity: {opportunity_type}")
+                        st.stop()
+                    
+                    if operating_unit_id is None:
+                        st.error(f"Missing Odoo operating unit mapping for: {operating_unit}")
+                        st.stop()
+                    
+                    if user_id is None:
+                        st.error(f"Missing Odoo user mapping for salesperson: {salesperson_name}")
+                        st.stop()
                     payload = {
                         "source": "roi-calc-quotation",
                         "submitted_at": datetime.now(timezone.utc).isoformat(),
@@ -733,13 +749,12 @@ with st.expander("Generate quote", expanded=False):
                             "contact_name": contact_name.strip(),
                             "contact_email": contact_email.strip(),
                             "contact_phone": contact_phone.strip() or None,
-                            "operating_unit_id": OPERATING_UNIT_MAP.get(operating_unit),
-                            "salesperson_id": SALESPERSON_MAP.get(salesperson_name),
-                            "opportunity_type_id": OPPORTUNITY_MAP.get(opportunity_type),
-                            # optioneel (aanrader voor logging/debugging)
                             "operating_unit_label": operating_unit,
                             "salesperson_name": salesperson_name,
                             "opportunity_type_label": opportunity_type,
+                            "template_id": int(template_id),
+                            "operating_unit_id": int(operating_unit_id),
+                            "user_id": int(user_id),
                         },
                         "scenario": {
                             "currency": currency,
