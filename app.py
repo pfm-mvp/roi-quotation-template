@@ -316,7 +316,20 @@ OPERATING_UNIT_MAP = {
 }
 
 SALESPERSON_MAP = {
-    "Christiaan van Rooijen": 181,
+    "Christiaan van Rooijen": 231,
+    "Anna Reilander": 394,
+    "Arnoud Aschman": 343,
+    "Bart Schmitz": 9,
+    "David Sturdy": 4,
+    "Krystof Gogela": 387,
+    "Mark Gosnell": 335,
+    "Mark King": 263,
+    "Oliver Germer": 404,
+    "Phill Cox": 122,
+    "Prince Competente": 382,
+    "Raymond Sestig": 328,
+    "Samar Moussa": 399,
+    "Tim Drayton": 97,
     # straks uitbreiden:
     # "Mark King": XXX,
     # "Raymond Sestig": XXX,
@@ -696,13 +709,20 @@ with st.expander("Generate quote", expanded=False):
                 salesperson_name = st.selectbox(
                     "Salesperson",
                     [
+                        "Anna Reilander",
+                        "Arnoud Aschman",
+                        "Bart Schmitz",
                         "Christiaan van Rooijen",
-                        "Mark King",
-                        "Raymond Sestig",
                         "David Sturdy",
+                        "Krystof Gogela",
                         "Mark Gosnell",
+                        "Mark King",
+                        "Oliver Germer",
+                        "Phill Cox",
                         "Prince Competence",
-                        "Anna Reiländer",
+                        "Raymond Sestig",
+                        "Samar Moussa",
+                        "Tim Drayton",
                     ],
                 )
                 opportunity_type = st.selectbox(
