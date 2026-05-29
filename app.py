@@ -2,6 +2,7 @@ import re
 import json
 from datetime import datetime, timezone
 
+import pandas as pd
 import requests
 import streamlit as st
 import plotly.graph_objects as go
@@ -656,8 +657,31 @@ st.markdown("---")
 
 debug_mode = st.checkbox("🛠️ Show debug payload (internal)", value=False)
 
+roi_output_rows = [
+    {"Metric": "Stores", "Value": int(n_stores), "Context": ""},
+    {"Metric": "Daily footfall", "Value": float(visitors_day), "Context": "Per store"},
+    {"Metric": "ATV", "Value": fmt_money(atv, currency), "Context": "Average ticket value"},
+    {"Metric": "Revenue / year", "Value": fmt_money(turnover_year_total, currency), "Context": f"Baseline for {n_stores} stores"},
+    {"Metric": f"Uplift over {tco_years} years", "Value": fmt_money(uplift_contract_total, currency), "Context": "Scenario versus baseline over selected contract term"},
+    {"Metric": f"Extra profit over {tco_years} years", "Value": fmt_money(extra_profit_contract_total, currency), "Context": "Gross profit over selected contract term"},
+    {"Metric": "Total cost of ownership", "Value": fmt_money(tco_total, currency), "Context": f"{tco_years}-year contract horizon"},
+    {"Metric": "Payback time", "Value": payback_txt, "Context": "Based on monthly extra profit after subscription"},
+    {"Metric": f"ROI over {tco_years} years", "Value": fmt_pct(roi_horizon), "Context": f"Net value: {fmt_money(net_value_horizon, currency)}"},
+]
+
+roi_output_df = pd.DataFrame(roi_output_rows)
+
+roi_output_csv = roi_output_df.to_csv(index=False).encode("utf-8-sig")
+
 with st.expander("Generate quote", expanded=False):
     st.caption("Internal use only. Complete the fields below to send the ROI scenario to the quote workflow.")
+    st.download_button(
+      label="Download ROI output CSV",
+      data=roi_output_csv,
+      file_name=f"pfm_roi_output_{n_stores}_stores.csv",
+      mime="text/csv",
+      use_container_width=True,
+    )
 
     configured_access_code = st.secrets.get("QUOTE_ACCESS_CODE", "")
     webhook_url = st.secrets.get(
