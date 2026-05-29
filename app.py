@@ -91,7 +91,7 @@ div[data-testid="stButton"] {{
 }}
 
 /* Download button */
-div[data-testid="stDownloadButton"] button {
+div[data-testid="stDownloadButton"] button {{
     background-color: #F2F4F7 !important;
     color: #0C111D !important;
     -webkit-text-fill-color: #0C111D !important;
@@ -99,27 +99,27 @@ div[data-testid="stDownloadButton"] button {
     border-radius: 12px !important;
     font-weight: 600 !important;
     min-height: 44px !important;
-}
+}}
 
 /* Hover */
-div[data-testid="stDownloadButton"] button:hover {
+div[data-testid="stDownloadButton"] button:hover {{
     background-color: #EAECF0 !important;
     color: #0C111D !important;
     border: 1px solid #98A2B3 !important;
-}
+}}
 
 /* Focus */
-div[data-testid="stDownloadButton"] button:focus {
+div[data-testid="stDownloadButton"] button:focus {{
     box-shadow: none !important;
     outline: none !important;
-}
+}}
 
 /* Text inside button */
 div[data-testid="stDownloadButton"] button p,
-div[data-testid="stDownloadButton"] button span {
+div[data-testid="stDownloadButton"] button span {{
     color: #0C111D !important;
     -webkit-text-fill-color: #0C111D !important;
-}
+}}
 
 /* Generate quote form submit button */
 div[data-testid="stFormSubmitButton"] button {{
