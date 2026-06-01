@@ -368,8 +368,8 @@ SALESPERSON_MAP = {
 }
 
 OPPORTUNITY_MAP = {
-    "Premium": 190,
-    "Budget": 189,
+    "Premium": 198,
+    "Budget": 199,
     # "Premium": 198,
     # "Budget": 199,
 }
