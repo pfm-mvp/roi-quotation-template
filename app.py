@@ -358,7 +358,7 @@ SALESPERSON_MAP = {
     "Mark King": 263,
     "Oliver Germer": 404,
     "Phill Cox": 122,
-    "Prince Competente": 382,
+    "Prince Competence": 382,
     "Raymond Sestig": 328,
     "Samar Moussa": 399,
     "Tim Drayton": 97,
@@ -372,6 +372,16 @@ OPPORTUNITY_MAP = {
     "Budget": 199,
     # "Premium": 198,
     # "Budget": 199,
+}
+
+# ROI approach: share of theoretical uplift that is realistically captured.
+# This makes the business case more credible for boardroom/CFO discussions.
+REALISATION_MAP = {
+    "Conservative": 0.10,
+    "Cautious base": 0.15,
+    "Realistic base": 0.25,
+    "Strong adoption": 0.35,
+    "Best case": 0.50,
 }
 
 for key, value in DEFAULTS.items():
@@ -543,6 +553,19 @@ with right:
     )
     st.markdown('<div class="small-note">All uplift sliders start at 0 to keep the baseline clean and credible.</div>', unsafe_allow_html=True)
 
+    roi_approach = st.radio(
+        "ROI approach",
+        [
+            "Conservative",
+            "Cautious base",
+            "Realistic base",
+            "Strong adoption",
+            "Best case",
+        ],
+        index=2,
+        horizontal=True,
+    )
+
 with st.expander("Optional Saturday scenario"):
     st.session_state["sat_share"] = (
         st.slider(
@@ -645,6 +668,19 @@ footfall_component = max(0.0, footfall_only_turnover_year_store - turnover_year_
 atv_component = max(0.0, atv_only_turnover_year_store - turnover_year_store) * n_stores
 component_sum = max(1e-9, conv_component + footfall_component + atv_component)
 
+realisation_factor = REALISATION_MAP[roi_approach]
+
+realistic_extra_profit_contract_total = extra_profit_contract_total * realisation_factor
+realistic_extra_profit_year_total = extra_profit_year_total * realisation_factor
+
+realistic_net_value_horizon = realistic_extra_profit_contract_total - tco_total
+realistic_roi_horizon = realistic_net_value_horizon / tco_total if tco_total > 0 else 0.0
+
+realistic_extra_profit_month_total = (realistic_extra_profit_year_total / 12.0) - monthly_service_total
+realistic_payback_months = float("inf")
+if realistic_extra_profit_month_total > 0:
+    realistic_payback_months = (install_cost_store * n_stores) / realistic_extra_profit_month_total
+
 k1, k2, k3, k4 = st.columns(4)
 with k1:
     st.markdown(
@@ -653,12 +689,12 @@ with k1:
     )
 with k2:
     st.markdown(
-        f'<div class="card"><div><b>Uplift over {tco_years} year{"s" if tco_years != 1 else ""}</b></div><div class="kpi">{fmt_money(uplift_contract_total, currency)}</div><div class="kpi-sub">Scenario versus baseline over selected contract term</div></div>',
+        f'<div class="card"><div><b>Theoretical uplift over {tco_years} year{"s" if tco_years != 1 else ""}</b></div><div class="kpi">{fmt_money(uplift_contract_total, currency)}</div><div class="kpi-sub">Maximum scenario versus baseline</div></div>',
         unsafe_allow_html=True,
     )
 with k3:
     st.markdown(
-        f'<div class="card"><div><b>Extra profit over {tco_years} year{"s" if tco_years != 1 else ""}</b></div><div class="kpi">{fmt_money(extra_profit_contract_total, currency)}</div><div class="kpi-sub">Gross profit over selected contract term</div></div>',
+        f'<div class="card"><div><b>Realistic extra profit over {tco_years} year{"s" if tco_years != 1 else ""}</b></div><div class="kpi">{fmt_money(realistic_extra_profit_contract_total, currency)}</div><div class="kpi-sub">{roi_approach} · {fmt_pct(realisation_factor, 0)} of theoretical uplift captured</div></div>',
         unsafe_allow_html=True,
     )
 with k4:
@@ -669,14 +705,14 @@ with k4:
 
 k5, k6 = st.columns(2)
 with k5:
-    payback_txt = "n/a" if payback_months == float("inf") else f"{payback_months:.1f}".replace(".", ",") + " mo"
+    payback_txt = "n/a" if realistic_payback_months == float("inf") else f"{realistic_payback_months:.1f}".replace(".", ",") + " mo"
     st.markdown(
-        f'<div class="card-outline"><div><b>Payback time</b></div><div class="kpi">{payback_txt}</div><div class="kpi-sub">Based on monthly extra profit after subscription</div></div>',
+        f'<div class="card-outline"><div><b>Realistic payback time</b></div><div class="kpi">{payback_txt}</div><div class="kpi-sub">Based on {roi_approach.lower()} captured profit after subscription</div></div>',
         unsafe_allow_html=True,
     )
 with k6:
     st.markdown(
-        f'<div class="card-outline"><div><b>ROI over {tco_years} years</b></div><div class="kpi">{fmt_pct(roi_horizon)}</div><div class="kpi-sub">Net value: {fmt_money(net_value_horizon, currency)}</div></div>',
+        f'<div class="card-outline"><div><b>Realistic ROI over {tco_years} years</b></div><div class="kpi">{fmt_pct(realistic_roi_horizon)}</div><div class="kpi-sub">Net value: {fmt_money(realistic_net_value_horizon, currency)}</div></div>',
         unsafe_allow_html=True,
     )
 
@@ -691,16 +727,21 @@ debug_mode = st.checkbox("🛠️ Show debug payload (internal)", value=False)
 roi_output_rows = [
     {"Metric": "Stores", "Value": int(n_stores), "Context": ""},
     {"Metric": "Daily footfall", "Value": float(visitors_day), "Context": "Per store"},
+    {"Metric": "Conversion rate", "Value": fmt_pct(conv_pct), "Context": "Baseline input"},
     {"Metric": "ATV", "Value": fmt_money(atv, currency), "Context": "Average ticket value"},
+    {"Metric": "Gross margin", "Value": fmt_pct(gross_margin), "Context": "Input"},
     {"Metric": "Footfall uplift", "Value": fmt_pct(footfall_uplift), "Context": "What-if input"},
     {"Metric": "Conversion uplift", "Value": f"{conversion_uplift * 100:.1f} pp".replace(".", ","), "Context": "What-if input"},
     {"Metric": "ATV uplift", "Value": fmt_pct(atv_uplift), "Context": "What-if input"},
+    {"Metric": "ROI approach", "Value": roi_approach, "Context": "Selected realism scenario"},
+    {"Metric": "Realisation factor", "Value": fmt_pct(realisation_factor, 0), "Context": "Share of theoretical uplift captured"},
     {"Metric": "Revenue / year", "Value": fmt_money(turnover_year_total, currency), "Context": f"Baseline for {n_stores} stores"},
-    {"Metric": f"Uplift over {tco_years} years", "Value": fmt_money(uplift_contract_total, currency), "Context": "Scenario versus baseline over selected contract term"},
-    {"Metric": f"Extra profit over {tco_years} years", "Value": fmt_money(extra_profit_contract_total, currency), "Context": "Gross profit over selected contract term"},
+    {"Metric": f"Theoretical uplift over {tco_years} years", "Value": fmt_money(uplift_contract_total, currency), "Context": "Maximum scenario versus baseline"},
+    {"Metric": f"Theoretical extra profit over {tco_years} years", "Value": fmt_money(extra_profit_contract_total, currency), "Context": "Before realisation factor"},
+    {"Metric": f"Realistic extra profit over {tco_years} years", "Value": fmt_money(realistic_extra_profit_contract_total, currency), "Context": f"{roi_approach}: {fmt_pct(realisation_factor, 0)} captured"},
     {"Metric": "Total cost of ownership", "Value": fmt_money(tco_total, currency), "Context": f"{tco_years}-year contract horizon"},
-    {"Metric": "Payback time", "Value": payback_txt, "Context": "Based on monthly extra profit after subscription"},
-    {"Metric": f"ROI over {tco_years} years", "Value": fmt_pct(roi_horizon), "Context": f"Net value: {fmt_money(net_value_horizon, currency)}"},
+    {"Metric": "Realistic payback time", "Value": payback_txt, "Context": f"Based on {roi_approach.lower()} captured profit after subscription"},
+    {"Metric": f"Realistic ROI over {tco_years} years", "Value": fmt_pct(realistic_roi_horizon), "Context": f"Net value: {fmt_money(realistic_net_value_horizon, currency)}"},
 ]
 
 roi_output_df = pd.DataFrame(roi_output_rows)
@@ -825,8 +866,12 @@ with st.expander("Generate quote", expanded=False):
                         "source": "roi-calc-quotation",
                         "submitted_at": datetime.now(timezone.utc).isoformat(),
                         # Core quote parameters for n8n / Odoo
+                        "num_stores": int(n_stores),
                         "amount_of_sensors": int(n_stores),
                         "stores_in_scope": int(n_stores),
+                        "template_id": int(template_id),
+                        "operating_unit_id": int(operating_unit_id),
+                        "user_id": int(user_id),
                         "lead": {
                             "company_name": company_name.strip(),
                             "contact_name": contact_name.strip(),
@@ -855,6 +900,8 @@ with st.expander("Generate quote", expanded=False):
                             "footfall_uplift_pct": float(footfall_uplift * 100),
                             "open_days_per_week": int(open_days),
                             "contract_term_years": int(tco_years),
+                            "roi_approach": roi_approach,
+                            "realisation_factor_pct": float(realisation_factor * 100),
                             "optional_saturday_scenario": {
                                 "sat_share_pct": float(sat_share * 100),
                                 "sat_conversion_boost_pct": float(sat_boost * 100),
@@ -871,16 +918,21 @@ with st.expander("Generate quote", expanded=False):
                             },
                         },
                         "results": {
-                            "revenue_year_total": turnover_year_total,
-                            "revenue_year_total_new": turnover_year_total_new,
-                            "uplift_year_total": uplift_year_total,
-                            "uplift_contract_total": uplift_contract_total,
-                            "extra_profit_year_total": extra_profit_year_total,
-                            "extra_profit_contract_total": extra_profit_contract_total,
-                            "tco_total": tco_total,
-                            "net_value_horizon": net_value_horizon,
-                            "roi_horizon_pct": roi_horizon * 100,
-                            "payback_months": None if payback_months == float("inf") else payback_months,
+                            "revenue_year_total": float(turnover_year_total),
+                            "revenue_year_total_new": float(turnover_year_total_new),
+                            "uplift_year_total": float(uplift_year_total),
+                            "uplift_contract_total": float(uplift_contract_total),
+                            "theoretical_extra_profit_year_total": float(extra_profit_year_total),
+                            "theoretical_extra_profit_contract_total": float(extra_profit_contract_total),
+                            "realistic_extra_profit_year_total": float(realistic_extra_profit_year_total),
+                            "realistic_extra_profit_contract_total": float(realistic_extra_profit_contract_total),
+                            "tco_total": float(tco_total),
+                            "theoretical_net_value_horizon": float(net_value_horizon),
+                            "theoretical_roi_horizon_pct": float(roi_horizon * 100),
+                            "realistic_net_value_horizon": float(realistic_net_value_horizon),
+                            "realistic_roi_horizon_pct": float(realistic_roi_horizon * 100),
+                            "theoretical_payback_months": None if payback_months == float("inf") else float(payback_months),
+                            "realistic_payback_months": None if realistic_payback_months == float("inf") else float(realistic_payback_months),
                         },
                     }
                     # Debug output (only visible when enabled)
